@@ -81,6 +81,10 @@ reprex_render_impl <- function(input, new_session = TRUE, html_preview = NULL) {
     input <- file_copy(input, rmd_file(input), overwrite = TRUE)
   }
   std_file <- std_out_err_path(input, std_out_err)
+  # rendering can mutate `input` in place (e.g. reprex_document()'s pre_knit()
+  # hook, for an .Rmd input), so grab the original source now, in case we need
+  # it later to describe a crash
+  original_lines <- read_lines(input)
 
   if (new_session) {
     # if callr::r() picks up a local .Rprofile, it should be local to
@@ -136,6 +140,8 @@ reprex_render_impl <- function(input, new_session = TRUE, html_preview = NULL) {
       md_lines <- c(
         "This reprex appears to crash R.",
         "See standard output and standard error for more details.",
+        "",
+        reprex_source_stub(original_lines, input),
         "",
         std_out_err_stub(input, venue %in% c("gh", "html"))
       )
@@ -279,6 +285,41 @@ reprex_document_options <- function(input) {
     yaml[["output"]][["reprex::reprex_document"]],
     error = function(e) list()
   )
+}
+
+# when R crashes, rmarkdown::render() never returns, so we have no rendered
+# output at all, i.e. no record of the reprex code. Instead inject the
+# captured code.
+reprex_source_stub <- function(lines, input) {
+  if (tolower(path_ext(input)) == "r") {
+    c("``` r", trim_blank_lines(strip_roxygen_frontmatter(lines)), "```")
+  } else {
+    trim_blank_lines(strip_markdown_frontmatter(lines))
+  }
+}
+
+strip_roxygen_frontmatter <- function(lines) {
+  delims <- grep("^#'\\s*---\\s*$", lines)
+  if (length(delims) >= 2) {
+    lines <- lines[-seq(delims[1], delims[2])]
+  }
+  lines
+}
+
+strip_markdown_frontmatter <- function(lines) {
+  delims <- grep("^---\\s*$", lines)
+  if (length(delims) >= 2 && delims[1] <= 2) {
+    lines <- lines[-seq(delims[1], delims[2])]
+  }
+  lines
+}
+
+trim_blank_lines <- function(lines) {
+  nonblank <- which(nzchar(trimws(lines)))
+  if (length(nonblank) == 0) {
+    return(character())
+  }
+  lines[nonblank[1]:nonblank[length(nonblank)]]
 }
 
 std_out_err_path <- function(input, std_out_err) {

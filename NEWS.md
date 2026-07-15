@@ -1,5 +1,7 @@
 # reprex (development version)
 
+* When a reprex crashes R and `std_out_err = TRUE`, the rendered output now includes the reprex source code, in addition to the standard output and error (#674, @BjarkeHautop).
+
 # reprex 2.1.1
 
 * `reprex(style = FALSE)` will never nag about installing styler (#461).
