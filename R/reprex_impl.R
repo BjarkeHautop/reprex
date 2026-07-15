@@ -13,6 +13,7 @@ reprex_impl <- function(
   comment = opt("#>"),
   tidyverse_quiet = opt(TRUE),
   std_out_err = opt(FALSE),
+  local_figures = opt(FALSE),
   html_preview = opt(TRUE),
 
   outfile = deprecated()
@@ -30,6 +31,7 @@ reprex_impl <- function(
   comment <- arg_option(comment)
   tidyverse_quiet <- arg_option(tidyverse_quiet)
   std_out_err <- arg_option(std_out_err)
+  local_figures <- arg_option(local_figures)
 
   if (!is.null(input)) {
     stopifnot(is.character(input))
@@ -41,6 +43,7 @@ reprex_impl <- function(
   stopifnot(is_bool(html_preview), is_bool(render))
   stopifnot(is.character(comment))
   stopifnot(is_bool(tidyverse_quiet), is_bool(std_out_err))
+  stopifnot(is_bool(local_figures))
 
   if (lifecycle::is_present(outfile)) {
     stopifnot(is.character(outfile) || is.na(outfile))
@@ -80,7 +83,8 @@ reprex_impl <- function(
     style = style,
     comment = comment,
     tidyverse_quiet = tidyverse_quiet,
-    std_out_err = std_out_err
+    std_out_err = std_out_err,
+    local_figures = local_figures
   )
   src <- c(yamlify(reprex_document_options), "", src)
   if (reprex_files$chatty) {
@@ -183,7 +187,8 @@ remove_defaults <- function(x) {
     style = FALSE,
     comment = "#>",
     tidyverse_quiet = TRUE,
-    std_out_err = FALSE
+    std_out_err = FALSE,
+    local_figures = FALSE
   )
 
   compare_one <- function(nm) identical(x[[nm]], defaults[[nm]])

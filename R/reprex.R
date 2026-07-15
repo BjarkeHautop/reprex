@@ -29,10 +29,11 @@
 #' * reprex also sets knitr's `upload.fun`. It defaults to
 #'   [knitr::imgur_upload()] so figures produced by the reprex appear properly
 #'   on GitHub, Stack Overflow, Discourse, and Slack. Note that `imgur_upload()`
-#'   requires the packages httr and xml2. When `venue = "r"`, `upload.fun` is
-#'   set to `identity()`, so that figures remain local. In that case, you may
-#'   also want to provide a filepath to `input` or set `wd`, to control where
-#'   the reprex files are written.
+#'   requires the packages httr and xml2. When `venue = "r"` or when
+#'   `local_figures = TRUE`, `upload.fun` is set to `identity()`, so that
+#'   figures remain local. In that case, you may also want to provide a
+#'   filepath to `input` or set `wd`, to control where the reprex files are
+#'   written.
 #' You can supplement or override these options with special comments in your
 #' code (see examples).
 #'
@@ -140,6 +141,14 @@
 #'   process, nor is there any guarantee that the lines from standard output and
 #'   standard error are in correct chronological order. See [callr::r()] for
 #'   more. Read more about [opt()].
+#' @param local_figures Logical. Whether to keep figures as local files,
+#'   instead of uploading them to <https://imgur.com>. Figures are saved as
+#'   `reprex-plots/plot-1.png`, `reprex-plots/plot-2.png`, etc., relative to
+#'   the current working directory, overwriting any figures left there by a
+#'   previous reprex. Each figure link in the markdown is replaced by a
+#'   visible placeholder giving the local path to the figure, i.e.
+#'   "Insert plot here: <path>". The HTML preview still displays the actual
+#'   figures. Read more about [opt()].
 #' @param html_preview Logical. Whether to show rendered output in a viewer
 #'   (RStudio or browser). Always `FALSE` in a noninteractive session. Read more
 #'   about [opt()].
@@ -274,6 +283,7 @@ reprex <- function(
   comment = opt("#>"),
   tidyverse_quiet = opt(TRUE),
   std_out_err = opt(FALSE),
+  local_figures = opt(FALSE),
   html_preview = opt(TRUE),
 
   outfile = deprecated(),
@@ -311,6 +321,7 @@ reprex <- function(
     comment         = comment,
     tidyverse_quiet = tidyverse_quiet,
     std_out_err     = std_out_err,
+    local_figures   = local_figures,
 
     outfile = outfile
   )

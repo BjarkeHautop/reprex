@@ -15,6 +15,7 @@
 #'     - `style`
 #'     - `comment`
 #'     - `tidyverse_quiet`
+#'     - `local_figures` (also consulted by [reprex_render()])
 #'
 #' RStudio users can create new R Markdown documents with the
 #' `reprex_document()` format using built-in templates. Do
@@ -41,6 +42,7 @@ reprex_document <- function(
   comment = opt("#>"),
   tidyverse_quiet = opt(TRUE),
   std_out_err = opt(FALSE),
+  local_figures = opt(FALSE),
   pandoc_args = NULL
 ) {
   venue <- tolower(venue)
@@ -54,10 +56,12 @@ reprex_document <- function(
   comment <- arg_option(comment)
   tidyverse_quiet <- arg_option(tidyverse_quiet)
   std_out_err <- arg_option(std_out_err)
+  local_figures <- arg_option(local_figures)
 
   stopifnot(is_bool(advertise), is_bool(session_info), is_bool(style))
   stopifnot(is.character(comment))
   stopifnot(is_bool(tidyverse_quiet), is_bool(std_out_err))
+  stopifnot(is_bool(local_figures))
 
   opts_chunk <- list(
     # fixed defaults
@@ -74,7 +78,11 @@ reprex_document <- function(
     opts_chunk[["tidy"]] <- "styler"
   }
   opts_knit <- list(
-    upload.fun = switch(venue, r = identity, knitr::imgur_upload)
+    upload.fun = if (venue == "r" || local_figures) {
+      identity
+    } else {
+      knitr::imgur_upload
+    }
   )
 
   pandoc_args <- c(

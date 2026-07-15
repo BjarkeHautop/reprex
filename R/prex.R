@@ -41,7 +41,8 @@ prex <- function(
   style = opt(FALSE),
   html_preview = opt(TRUE),
   comment = opt("#>"),
-  tidyverse_quiet = opt(TRUE)
+  tidyverse_quiet = opt(TRUE),
+  local_figures = opt(FALSE)
 ) {
   # fmt: skip
   reprex_impl(
@@ -59,6 +60,7 @@ prex <- function(
     comment         = comment,
     tidyverse_quiet = tidyverse_quiet,
     std_out_err     = FALSE,                    # <-- different from reprex()
+    local_figures   = local_figures,
     html_preview    = html_preview
   )
 }

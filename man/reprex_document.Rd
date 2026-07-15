@@ -12,6 +12,7 @@ reprex_document(
   comment = opt("#>"),
   tidyverse_quiet = opt(TRUE),
   std_out_err = opt(FALSE),
+  local_figures = opt(FALSE),
   pandoc_args = NULL
 )
 }
@@ -71,6 +72,15 @@ process, nor is there any guarantee that the lines from standard output and
 standard error are in correct chronological order. See \code{\link[callr:r]{callr::r()}} for
 more. Read more about \code{\link[=opt]{opt()}}.}
 
+\item{local_figures}{Logical. Whether to keep figures as local files,
+instead of uploading them to \url{https://imgur.com}. Figures are saved as
+\verb{reprex-plots/plot-1.png}, \verb{reprex-plots/plot-2.png}, etc., relative to
+the current working directory, overwriting any figures left there by a
+previous reprex. Each figure link in the markdown is replaced by a
+visible placeholder giving the local path to the figure, i.e.
+"Insert plot here: \if{html}{\out{<path>}}". The HTML preview still displays the actual
+figures. Read more about \code{\link[=opt]{opt()}}.}
+
 \item{pandoc_args}{Additional command line options to pass to pandoc}
 }
 \value{
@@ -95,6 +105,7 @@ influence:
 \item \code{style}
 \item \code{comment}
 \item \code{tidyverse_quiet}
+\item \code{local_figures} (also consulted by \code{\link[=reprex_render]{reprex_render()}})
 }
 }
 

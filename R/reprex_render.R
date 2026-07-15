@@ -71,6 +71,7 @@ reprex_render_impl <- function(input, new_session = TRUE, html_preview = NULL) {
 
   venue <- yaml_opts[["venue"]] %||% "gh"
   comment <- yaml_opts[["comment"]] %||% "#>"
+  local_figures <- yaml_opts[["local_figures"]] %||% FALSE
 
   html_preview <-
     html_preview %||% yaml_opts[["html_preview"]] %||% is_interactive_ish()
@@ -165,6 +166,19 @@ reprex_render_impl <- function(input, new_session = TRUE, html_preview = NULL) {
     )
   }
 
+  # something that would naturally go in a post_processor, but can't
+  # (see below)
+  # the preview must also be generated before figure links are (possibly)
+  # replaced with placeholders, so that local figures still display in the
+  # preview
+  if (html_preview) {
+    preview(md_file)
+  }
+
+  if (isTRUE(local_figures)) {
+    pp_figure_placeholders(md_file)
+  }
+
   # we can almost use the post_processor of output_format, but sadly we cannot
   # we can't inject std_out_err until the connection to std_file is closed
   # and we can't post process until the injection is done
@@ -177,11 +191,6 @@ reprex_render_impl <- function(input, new_session = TRUE, html_preview = NULL) {
     md_file
   )
 
-  # also something that would naturally go in a post_processor, but can't
-  # (see above)
-  if (html_preview) {
-    preview(md_file)
-  }
   invisible(reprex_file)
 }
 
@@ -350,6 +359,39 @@ remove_info_strings <- function(x) {
 # output: https://i.imgur.com/woc4vHs.png
 simplify_image_links <- function(x) {
   sub("(^!\\[\\]\\()(.+)(\\)$)", "\\2", x, perl = TRUE)
+}
+
+# used when local_figures is TRUE
+# input:  ![](foofy_reprex_files/figure-gfm/blah-1.png)<!-- -->
+# output: **Insert plot here:** `reprex-plots/plot-1.png`
+# the figure files are moved into plot_dir, relative to the current working
+# directory, and renamed plot-1.png, plot-2.png, etc., in order of appearance;
+# existing files with those names are overwritten
+pp_figure_placeholders <- function(input, plot_dir = "reprex-plots") {
+  path <- md_file(input)
+  md_lines <- read_lines(path)
+
+  regex <- "^!\\[\\]\\((.+?)\\)(<!-- -->)?$"
+  link_path <- sub(regex, "\\1", md_lines, perl = TRUE)
+  figure_dir <- paste0(path_ext_remove(path_file(path)), "_files/")
+  target <- grepl(regex, md_lines, perl = TRUE) &
+    startsWith(link_path, figure_dir)
+  if (!any(target)) {
+    return(path)
+  }
+
+  figure_path <- link_path[target]
+  plot_path <- path(
+    plot_dir,
+    glue("plot-{seq_along(figure_path)}.{path_ext(figure_path)}")
+  )
+  dir_create(plot_dir)
+  file_copy(path(path_dir(path), figure_path), plot_path, overwrite = TRUE)
+  file_delete(path(path_dir(path), figure_path))
+
+  md_lines[target] <- as.character(glue("**Insert plot here:** `{plot_path}`"))
+  write_lines(md_lines, path)
+  path
 }
 
 # used when venue is "rtf"

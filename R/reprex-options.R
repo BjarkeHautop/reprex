@@ -12,6 +12,7 @@
 #'   * `reprex.comment`
 #'   * `reprex.tidyverse_quiet`
 #'   * `reprex.std_out_err`
+#'   * `reprex.local_figures`
 #'
 #' A few more options exist, but are only relevant to specific situations:
 #'   * `reprex.venue`: Can be used to control the `venue` used by the
@@ -44,6 +45,7 @@
 #'   reprex.comment         = "#;-)",
 #'   reprex.tidyverse_quiet = FALSE,
 #'   reprex.std_out_err     = TRUE,
+#'   reprex.local_figures   = TRUE,
 #'   reprex.venue           = "html", # NOTE: only affects reprex_selection()!
 #'   reprex.highlight.hl_style  = "acid", # NOTE: only affects RTF venue
 #'   reprex.highlight.font      = "Andale Mono Regular",

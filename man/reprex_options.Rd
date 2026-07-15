@@ -17,6 +17,7 @@ ones:
 \item \code{reprex.comment}
 \item \code{reprex.tidyverse_quiet}
 \item \code{reprex.std_out_err}
+\item \code{reprex.local_figures}
 }
 
 A few more options exist, but are only relevant to specific situations:
@@ -52,6 +53,7 @@ the sake of exposition:
   reprex.comment         = "#;-)",
   reprex.tidyverse_quiet = FALSE,
   reprex.std_out_err     = TRUE,
+  reprex.local_figures   = TRUE,
   reprex.venue           = "html", # NOTE: only affects reprex_selection()!
   reprex.highlight.hl_style  = "acid", # NOTE: only affects RTF venue
   reprex.highlight.font      = "Andale Mono Regular",
